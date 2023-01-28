@@ -1,120 +1,120 @@
-/* dr_logico: */
+
 
 CREATE TABLE turma (
-    codigo INTEGER PRIMARY KEY,
-    fk_modalidade_codigo INTEGER
+    codigo SERIAL UNIQUE NOT NULL PRIMARY KEY,
+    fk_modalidade_codigo INTEGER NOT NULL
 );
 
 CREATE TABLE profissional (
-    cargo INTEGER,
+    cargo INTEGER NOT NULL,
     foto BYTEA,
-    cref INTEGER,
-    cpf CHAR(11) PRIMARY KEY
+    cref VARCHAR(15) NOT NULL,
+    cpf CHAR(11) UNIQUE NOT NULL PRIMARY KEY
 );
 
 CREATE TABLE aluno (
-    cpf INTEGER PRIMARY KEY,
-    nome VARCHAR(50),
-    data_nascimento DATE,
+    cpf CHAR(11) UNIQUE NOT NULL PRIMARY KEY,
+    nome VARCHAR(50) NOT NULL,
+    data_nascimento DATE NOT NULL,
     foto BYTEA,
-    fk_plano_codigo INTEGER
+    fk_plano_codigo INTEGER NOT NULL
 );
 
 CREATE TABLE unidade (
-    codigo INTEGER PRIMARY KEY,
-    nome VARCHAR(50),
-    endereco VARCHAR(150)
+    codigo SERIAL UNIQUE NOT NULL PRIMARY KEY,
+    nome VARCHAR(50) NOT NULL,
+    endereco VARCHAR(150) NOT NULL
 );
 
 CREATE TABLE sala (
-    codigo INTEGER PRIMARY KEY,
-    numero INTEGER,
-    fk_unidade_codigo INTEGER
+    codigo SERIAL UNIQUE NOT NULL PRIMARY KEY,
+    numero INTEGER NOT NULL,
+    fk_unidade_codigo INTEGER NOT NULL
 );
 
 CREATE TABLE equipamento (
-    codigo INTEGER PRIMARY KEY,
-    descricao VARCHAR(50),
-    data_aquisicao DATE,
-    fk_sala_codigo INTEGER
+    codigo SERIAL UNIQUE NOT NULL PRIMARY KEY,
+    descricao VARCHAR(50) NOT NULL,
+    data_aquisicao DATE NOT NULL,
+    fk_sala_codigo INTEGER NOT NULL
 );
 
 CREATE TABLE plano (
-    codigo INTEGER PRIMARY KEY,
-    nome VARCHAR(50),
-    valor DECIMAL
+    codigo SERIAL UNIQUE NOT NULL PRIMARY KEY,
+    nome VARCHAR(50) NOT NULL,
+    valor DECIMAL NOT NULL
 );
 
 CREATE TABLE ficha_treinamento (
-    codigo INTEGER PRIMARY KEY,
-    vencimento DATE,
-    data_criacao DATE,
-    fk_aluno_cpf INTEGER,
-    fk_profissional_cpf CHAR(11)
+    codigo SERIAL UNIQUE NOT NULL PRIMARY KEY,
+    vencimento DATE NOT NULL,
+    data_criacao DATE NOT NULL,
+    fk_aluno_cpf INTEGER NOT NULL,
+    fk_profissional_cpf CHAR(11) NOT NULL
 );
 
 CREATE TABLE exercicio_prescrito (
-    num_repeticoes INTEGER,
-    num_series INTEGER,
+    num_repeticoes INTEGER NOT NULL,
+    num_series INTEGER NOT NULL,
     tecnica VARCHAR(50),
-    intervalo_descanso INTEGER,
+    intervalo_descanso INTEGER NOT NULL,
     observacao VARCHAR(100),
-    ritmo CHAR(4),
-    codigo INTEGER PRIMARY KEY,
-    fk_tipo_exercicio_codigo INTEGER
+    ritmo CHAR(4) NOT NULL,
+    codigo SERIAL UNIQUE NOT NULL PRIMARY KEY,
+    fk_tipo_exercicio_codigo INTEGER NOT NULL
 );
 
 CREATE TABLE modalidade (
-    codigo INTEGER PRIMARY KEY,
-    nome VARCHAR(50),
-    faixa_etaria VARCHAR(10)
+    codigo SERIAL UNIQUE NOT NULL PRIMARY KEY,
+    nome VARCHAR(50) NOT NULL,
+    faixa_etaria VARCHAR(10) NOT NULL
 );
 
 CREATE TABLE tipo_exercicio (
-    codigo INTEGER PRIMARY KEY,
-    nome VARCHAR(50),
-    fk_equipamento_codigo INTEGER
+    codigo SERIAL UNIQUE NOT NULL PRIMARY KEY,
+    nome VARCHAR(50) NOT NULL,
+    fk_equipamento_codigo INTEGER NOT NULL
 );
 
 CREATE TABLE e_composta (
-    fk_exercicio_prescrito_codigo INTEGER,
-    fk_ficha_treinamento_codigo INTEGER
+    fk_exercicio_prescrito_codigo INTEGER NOT NULL,
+    fk_ficha_treinamento_codigo INTEGER NOT NULL
 );
 
 CREATE TABLE utiliza (
-    fk_sala_codigo INTEGER,
-    fk_turma_codigo INTEGER,
-    horario_inicio TIMESTAMP,
-    horario_fim TIMESTAMP,
-    dia_semana VARCHAR(10)
+    fk_sala_codigo INTEGER NOT NULL,
+    fk_turma_codigo INTEGER NOT NULL,
+    horario_inicio TIMESTAMP NOT NULL,
+    horario_fim TIMESTAMP NOT NULL,
+    dia_semana VARCHAR(10) NOT NULL
 );
 
 CREATE TABLE conduz (
-    fk_profissional_cpf CHAR(11),
-    fk_turma_codigo INTEGER
+    fk_profissional_cpf CHAR(11) NOT NULL,
+    fk_turma_codigo INTEGER NOT NULL
 );
 
 CREATE TABLE esta_matriculado (
-    fk_turma_codigo INTEGER,
-    fk_aluno_cpf INTEGER
+    fk_turma_codigo INTEGER NOT NULL,
+    fk_aluno_cpf CHAR(11) NOT NULL
 );
 
 CREATE TABLE da_acesso (
-    fk_plano_codigo INTEGER,
-    fk_unidade_codigo INTEGER
+    fk_plano_codigo INTEGER NOT NULL,
+    fk_unidade_codigo INTEGER NOT NULL
 );
 
 CREATE TABLE compreende (
-    fk_plano_codigo INTEGER,
-    fk_modalidade_codigo INTEGER
+    fk_plano_codigo INTEGER NOT NULL,
+    fk_modalidade_codigo INTEGER NOT NULL
 );
 
 CREATE TABLE trabalha_em (
-    fk_profissional_cpf CHAR(11),
-    fk_unidade_codigo INTEGER,
-    horario_inicio TIMESTAMP,
-    horario_fim TIMESTAMP,
-    dia_semana VARCHAR(10)
+    fk_profissional_cpf CHAR(11) NOT NULL,
+    fk_unidade_codigo INTEGER NOT NULL,
+    horario_inicio TIMESTAMP NOT NULL,
+    horario_fim TIMESTAMP NOT NULL,
+    dia_semana VARCHAR(10) NOT NULL
 );
  
 ALTER TABLE turma ADD CONSTRAINT FK_turma_2
