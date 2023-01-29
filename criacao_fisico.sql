@@ -6,10 +6,11 @@ CREATE TABLE turma (
 );
 
 CREATE TABLE profissional (
-    cargo INTEGER NOT NULL,
+    cargo VARCHAR(30) NOT NULL,
     foto BYTEA,
     cref VARCHAR(15) NOT NULL,
-    cpf CHAR(11) UNIQUE NOT NULL PRIMARY KEY
+    cpf CHAR(11) UNIQUE NOT NULL PRIMARY KEY,
+    nome VARCHAR(50) NOT NULL,
 );
 
 CREATE TABLE aluno (
@@ -230,7 +231,7 @@ ALTER TABLE trabalha_em ADD CONSTRAINT FK_trabalha_em_2
 /* Popula as tabelas */
 
 INSERT INTO 
-        modalidade 
+    modalidade 
         (nome, faixa_etaria)
 VALUES  
         ('Natação','Infantil'),
@@ -249,9 +250,19 @@ VALUES
         ('Circo', 'Infantil'),
         ('Hidroginástica', 'Adulto');
 
+INSERT INTO
+    turma
+    (fk_modalidade_codigo)
+VALUES
+    (1),
+    (4),
+    (9),
+    (10),
+    (12);
+
 
 INSERT INTO
-        plano
+    plano
         (nome, valor)
 VALUES
         ('Acqua trimestral', 300.00),
@@ -267,7 +278,7 @@ VALUES
 
 
 INSERT INTO
-        unidade
+    unidade
         (nome,endereco)
 VALUES
         ('Asa Sul', 'Shopping Pier 21, Conjunto 32 - Asa Sul, Brasília - DF, 70200-002'),
@@ -278,7 +289,7 @@ VALUES
 
 
 INSERT INTO
-        sala
+    sala
         (numero,fk_unidade_codigo)
 VALUES
         (1,1),
@@ -303,7 +314,7 @@ VALUES
 
 
 INSERT INTO
-        equipamento
+    equipamento
         (descricao, data_aquisicao, fk_sala_codigo)
 VALUES
         ('Cadeira abdutora', '2019-09-14', 1),
@@ -326,7 +337,7 @@ VALUES
         ('Ladder Barrel', '2022-08-17', 4);
 
 INSERT INTO
-        tipo_exercicio
+    tipo_exercicio
         (nome, fk_equipamento_codigo)
 VALUES
         ('Adução de quadril', 2 ),
@@ -346,7 +357,7 @@ VALUES
 /* TO DO inserir foto como bytea */
 
 INSERT INTO
-        aluno
+    aluno
         (cpf, nome, data_nascimento, fk_plano_codigo)
 VALUES
         ('12043814982', 'Alberto Silva Franco', '2022-03-11', 1),
@@ -355,7 +366,73 @@ VALUES
         ('25843758345', 'Fábio Lima Algures', '2010-12-03', 2),
         ('75983752955', 'Natália Rodrigues da Cunha', '1978-04-15', 9);
 
+/* TO DO inserir foto como bytea */
 
+INSERT INTO
+    profissional
+        (cargo, cref, cpf, nome)
+VALUES
+        ('Instrutor', '1248DF', '09821374012', 'Marcos Pereira Romero'),
+        ('Instrutor', '89183GO', '92648927643', 'Jane Costa Ribeiro'),
+        ('Instrutor', '102848SP', '24375782902', 'Flávio Assunção Oliveira'),
+        ('Coordenador', '190348MG', '12948742392', 'Pamela Borges Ramos'),
+        ('Coordenador', '923784DF', '23470174091', 'Rafael Ribeiro Pereira');
+
+INSERT INTO
+    ficha_treinamento
+        (vencimento, data_criacao, fk_aluno_cpf, fk_profissional_cpf)
+VALUES
+        ('2023-01-29', '2022-11-29','12043814982','09821374012'),
+        ('2023-02-02', '2022-12-02','08932475252','92648927643'),
+        ('2023-02-09', '2022-12-09','08932475252','92648927643'),
+        ('2023-02-14', '2022-12-14','75983752955','92648927643'),
+        ('2023-03-01', '2023-01-01','75983752955','92648927643');
+
+INSERT INTO
+    exercicio_prescrito
+        (num_repeticoes, num_series, tecnica, intervalo_descanso, observacao, ritmo, fk_tipo_exercicio_codigo)
+VALUES
+		(10,3, '-', 120, '-', '3030', 3),
+        (15,2,'pausa e descanso',90,'-', '2121',4),
+        (10,3,'isometria',120,'apoiar coluna com almofada','3232',1),
+        (8,2,'biset',120,'-','2020',2),
+        (8,2,'biset',120,'combinar com abdução', '3131',5);
+
+INSERT INTO
+    e_composta
+        (fk_exercicio_prescrito_codigo, fk_ficha_treinamento_codigo)
+VALUES
+        (1,1),
+        (2,1),
+        (3,1),
+        (4,2),
+        (5,2);
+
+INSERT INTO
+    esta_matriculado
+        (fk_turma_codigo, fk_aluno_cpf)
+VALUES
+        (2,'12043814982'),
+        (3,'08932475252'),
+        (4,'09287454235'),
+        (1,'25843758345'),
+        (2,'75983752955');
+
+INSERT INTO
+    conduz
+        (fk_profissional_cpf,fk_turma_codigo)
+VALUES
+        ('92648927643',1),
+        ('09821374012',1),
+        ('24375782902',2),
+        ('12948742392',3), 
+        ('23470174091',3);
+
+INSERT INTO
+    utiliza
+        (1,2,
+
+        /*turma 2 é de musculação / alterar timestamp, tem que ser apenas hora*/
 
 /*############################# importar bytea 
 File file = new File("C:\Users\andmi\Downloads\young-bearded-man-with-striped-shirt.jpg");
