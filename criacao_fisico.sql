@@ -85,8 +85,8 @@ CREATE TABLE e_composta (
 CREATE TABLE utiliza (
     fk_sala_codigo INTEGER NOT NULL,
     fk_turma_codigo INTEGER NOT NULL,
-    horario_inicio TIMESTAMP NOT NULL,
-    horario_fim TIMESTAMP NOT NULL,
+    horario_inicio TIME NOT NULL,
+    horario_fim TIME NOT NULL,
     dia_semana VARCHAR(10) NOT NULL
 );
 
@@ -113,8 +113,8 @@ CREATE TABLE compreende (
 CREATE TABLE trabalha_em (
     fk_profissional_cpf CHAR(11) NOT NULL,
     fk_unidade_codigo INTEGER NOT NULL,
-    horario_inicio TIMESTAMP NOT NULL,
-    horario_fim TIMESTAMP NOT NULL,
+    horario_inicio TIME NOT NULL,
+    horario_fim TIME NOT NULL,
     dia_semana VARCHAR(10) NOT NULL
 );
  
@@ -430,7 +430,44 @@ VALUES
 
 INSERT INTO
     utiliza
-        (1,2,
+        (fk_sala_codigo, fk_turma_codigo, horario_inicio, horario_fim, dia_semana)
+VALUES
+        (1,2,'08:00:00','20:00:00','segunda'),
+        (1,2,'08:00:00','20:00:00','quarta'),
+        (1,2,'08:00:00','18:00:00','sexta'),
+        (2,1,'16:00:00','17:00:00','terça'),
+        (2,1,'16:00:00','17:00:00','quinta');
+
+INSERT INTO
+    trabalha_em
+        (fk_profissional_cpf, fk_unidade_codigo, horario_inicio, horario_fim, dia_semana)
+VALUES
+        ('09821374012',1,'08:00:00','12:00:00','terça'),
+        ('09821374012',1,'08:00:00','12:00:00','quinta'),
+        ('92648927643',2,'10:00:00','14:00:00','segunda'),
+        ('92648927643',2,'10:00:00','14:00:00','quarta'),
+        ('92648927643',2,'10:00:00','14:00:00','sexta');
+
+INSERT INTO
+    compreende
+        (fk_plano_codigo, fk_modalidade_codigo)
+VALUES
+        (1,1),
+        (1,2),
+        (1,3),
+        (6,4),
+        (9,4);
+
+INSERT INTO
+    da_acesso
+        (fk_plano_codigo,fk_unidade_codigo)
+VALUES
+        (1,3),
+        (6,1),
+        (6,2),
+        (9,1),
+        (9,2);
+
 
         /*turma 2 é de musculação / alterar timestamp, tem que ser apenas hora*/
 
