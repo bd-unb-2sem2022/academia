@@ -469,7 +469,43 @@ VALUES
         (9,2);
 
 
-        /*turma 2 é de musculação / alterar timestamp, tem que ser apenas hora*/
+/* ############################
+
+Cria view nome_aluno_modalidade_unidade, que permite visualizar
+em uma única relação, a partir dos nomes, as conexões entre
+alunos, turmas, modalidades e unidades.
+
+#############################*/
+
+CREATE VIEW nome_aluno_modalidade_unidade as
+	SELECT tb5.aluno as aluno, tb5.turma_codigo as turma_codigo, tb5.modalidade as modalidade, unidade.nome as unidade_nome
+	FROM unidade
+	INNER JOIN
+		(SELECT tb4.aluno as aluno, tb4.modalidade as modalidade, tb4.turma_codigo as turma_codigo, sala.fk_unidade_codigo as unidade_codigo
+		FROM sala
+		INNER JOIN
+			(SELECT DISTINCT tb3.aluno as aluno, tb3.modalidade as modalidade, tb3.turma_codigo as turma_codigo, utiliza.fk_sala_codigo as sala_codigo
+			FROM utiliza
+			INNER JOIN
+				(SELECT tb2.nome as aluno, modalidade.nome as modalidade, tb2.turma_codigo as turma_codigo
+				FROM modalidade
+				INNER JOIN
+					(SELECT tb1.nome, turma.fk_modalidade_codigo, tb1.fk_turma_codigo as turma_codigo
+					FROM turma
+					INNER JOIN
+						(SELECT aluno.nome, fk_turma_codigo
+						FROM aluno 
+						INNER JOIN esta_matriculado 
+						ON fk_aluno_cpf = aluno.cpf) as tb1
+					ON fk_turma_codigo = turma.codigo) as tb2
+				ON fk_modalidade_codigo = modalidade.codigo) as tb3
+			ON tb3.turma_codigo = utiliza.fk_turma_codigo) as tb4
+		ON tb4.sala_codigo = sala.codigo) as tb5
+	ON tb5.unidade_codigo = unidade.codigo
+	ORDER BY turma_codigo;
+
+
+
 
 /*############################# importar bytea 
 File file = new File("C:\Users\andmi\Downloads\young-bearded-man-with-striped-shirt.jpg");
