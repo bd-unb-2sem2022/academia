@@ -504,6 +504,56 @@ CREATE VIEW nome_aluno_modalidade_unidade as
 	ON tb5.unidade_codigo = unidade.codigo
 	ORDER BY turma_codigo;
 
+/* ############################
+
+Cria procedure criar_turma, que simultaneamente inserir dados
+nas tabelas turma, utiliza e conduz.
+
+#############################*/
+
+
+
+CREATE PROCEDURE criar_turma(
+	fk_modalidade_codigo INTEGER,
+	fk_profissional_cpf CHAR(11),
+	fk_sala_codigo INTEGER,
+	horario_inicio TIME,
+	horario_fim TIME,
+	dia_semana VARCHAR(10))	
+LANGUAGE plpgsql
+AS $$
+DECLARE
+	turma_codigo INTEGER;
+BEGIN
+	INSERT INTO
+		turma
+		(fk_modalidade_codigo)
+	VALUES
+		(fk_modalidade_codigo)
+	RETURNING
+		turma.codigo INTO turma_codigo;
+	
+	INSERT INTO
+		conduz
+		(fk_profissional_cpf, fk_turma_codigo)
+	VALUES
+		(fk_profissional_cpf, turma_codigo);
+		
+	INSERT INTO
+		utiliza
+		(fk_sala_codigo, fk_turma_codigo, horario_inicio, horario_fim, dia_semana)
+	VALUES
+		(fk_sala_codigo, turma_codigo, horario_inicio, horario_fim, dia_semana);
+END;$$
+
+
+/* ############################
+
+Chama a procedure criar_turma, como exemplo.
+
+#############################*/
+
+CALL criar_turma(1, '09821374012', 1, '09:00:00', '10:00:00','quinta');
 
 
 
