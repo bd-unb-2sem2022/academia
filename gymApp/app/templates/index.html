@@ -2,12 +2,27 @@
 
 {% block content %}
 
-    <p>Pagina inicial de apresentação do que tem disponivel na academia e os planos</p>
+<div class="card-body">
+    <h4>Unidades</h4>
+    {% for value in unidades %}
+    <ul>
+        <li>{{ value.nome }} | {{ value.endereco }}</li>
+    </ul>
+    {% endfor %}
 
-    <!-- os dados será listados com o que vem do banco de dados -->
+    <h4>Modalidades</h4>
+    {% for value in modalidades %}
+    <ul>
+        <li>{{ value.nome }} | {{ value.faixa_etaria }}</li>
+    </ul>
+    {% endfor %}
 
-    <h2>Modalidades</h2>
-    <h2>Equipamentos</h2>
-    <h2>Planos</h2>
+    <h4>Planos</h4>
+    {% for value in planos %}
+    <ul>
+        <li>{{ value.nome }} | {{ value.valor }}</li>
+    </ul>
+    {% endfor %}
+</div>
 
 {% endblock %}
