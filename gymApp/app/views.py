@@ -1,4 +1,5 @@
 from django.views.generic import TemplateView, ListView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from app.models import Unidade, Plano, Modalidade
 
@@ -27,12 +28,12 @@ class LoginView(TemplateView):
 class CadastroView(TemplateView):
     template_name = 'cadastro.html'
 
-class MontagemTreinoView(TemplateView):
+class MontagemTreinoView(TemplateView, LoginRequiredMixin):
     template_name = 'montagem_treino.html'
 
-class PerfilView(TemplateView):
+class PerfilView(TemplateView, LoginRequiredMixin):
     template_name = 'perfil.html'
 
-class ClienteView(TemplateView):
+class ClienteView(TemplateView, LoginRequiredMixin):
     template_name = 'cliente.html'
-    
+
