@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect
-
+from psycopg2 import Binary
 from db import conexao
 
 app = Flask(__name__)
@@ -31,17 +31,15 @@ def get_add_aluno():
         cpf = request.form.get('cpf')
         nome = request.form.get('nome')
         data_nascimento = request.form.get('data_nascimento')
-        foto = request.form.get('foto')
-        print('foto:', foto)
+        foto = Binary(request.files['foto'].stream.read())
         fk_plano_codigo = request.form.get('fk_plano_codigo')
         fk_turma = request.form.get('fk_turma')
 
         # TODO: validação e sanitização dos dados inseridos
 
-        # insert
+
         try:
-            # TODO: adicionar foto
-            cursor.execute(f"insert into aluno values ('{cpf}', '{nome}', '{data_nascimento}', '{foto}', '{fk_plano_codigo}')")
+            cursor.execute("insert into aluno values (%s,%s,%s,%s,%s)", (cpf, nome, data_nascimento, foto, fk_plano_codigo))
             conexao.commit()
 
             cursor.execute(f"insert into esta_matriculado values ('{fk_turma}', '{cpf}')")

@@ -5,7 +5,7 @@
 <div class="card-body">
     <h4>Adicionar aluno</h4>
 
-    <form action="/add_aluno" method="post">
+    <form action="/add_aluno" method="post" enctype="multipart/form-data">
         <label for="">CPF</label>
         <input type="text" name="cpf" id=""><br>
 
@@ -16,7 +16,7 @@
         <input type="date" name="data_nascimento" id=""><br>
 
         <label for="">Foto</label>
-        <input type="file" name="image" id=""><br>
+        <input type="file" name="foto" id=""><br>
 
         <label for="">Plano</label>
         <select name="fk_plano_codigo" id="" required>
