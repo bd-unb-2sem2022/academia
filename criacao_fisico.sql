@@ -10,7 +10,7 @@ CREATE TABLE profissional (
     foto BYTEA,
     cref VARCHAR(15) NOT NULL,
     cpf CHAR(11) UNIQUE NOT NULL PRIMARY KEY,
-    nome VARCHAR(50) NOT NULL,
+    nome VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE aluno (
