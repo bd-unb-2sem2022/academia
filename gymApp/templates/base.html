@@ -17,28 +17,7 @@
         </a>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav">
-                {% if loged %}
-                    {% if instrutor %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="/montagem_treino">Montagem de Treino</a>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="/perfile">Perfil</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/cliente">Cliente</a>
-                        </li>
-                    {% endif %}
-                {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="/login">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/cadastro">Cadastro</a>
-                    </li>
-                {% endif %}
-              </ul>
+            </ul>
         </div>
     </nav>
 

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="card-body">
+    <h4>Alunos</h4>
+
+    <table>
+        <tr>
+            <th>Aluno</th>
+            <th>Turma</th>
+            <th>Modalidade</th>
+            <th>Unidade</th>
+        </tr>
+        {% for a in alunos %}
+        <tr>
+            <td>{{ a[0] }}</td>
+            <td>{{ a[1] }}</td>
+            <td>{{ a[2] }}</td>
+            <td>{{ a[3] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+</div>
+
+{% endblock %}
