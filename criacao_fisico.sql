@@ -513,6 +513,27 @@ create view turma_modalidade as
     on t.fk_modalidade_codigo = m.codigo
 ;
 
+-- view que junta sala e informações unidade
+CREATE OR REPLACE VIEW sala_unidade AS 
+    SELECT s.codigo,
+    s.numero,
+    u.endereco
+    FROM sala s
+    LEFT JOIN unidade u ON s.fk_unidade_codigo = u.codigo
+;
+
+-- view que junta codigos de turma, modalidade e sala
+create or replace view turma_mod_sala as 
+select t.codigo, t.fk_modalidade_codigo, u.fk_sala_codigo, c.fk_profissional_cpf,
+u.horario_inicio , u.horario_fim, u.dia_semana
+from turma t
+	inner join utiliza u
+	on t.codigo = u.fk_turma_codigo
+	left join conduz c
+	on t.codigo = c.fk_turma_codigo
+;
+
+
 /* ############################
 
 Cria procedure criar_turma, que simultaneamente inserir dados
