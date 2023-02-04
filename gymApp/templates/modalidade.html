@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="card-body">
+    
+    <h4>{{ "Editar modalidade" if modalidade else "Adicionar modalidade" }}</h4>
+
+    <form action="/{{ 'edit_modalidade' if modalidade else 'modalidade' }}" method="post">
+
+        {% if modalidade %}
+        <input hidden type="text" name="codigo" value="{{ modalidade[0] }}">
+        {% endif %}
+
+        <label for="">Nome</label>
+        <input type="text" name="nome" value="{{ modalidade[1] if modalidade else '' }}"><br>
+
+        <label for="">Faixa Etária</label>
+        <input type="text" name="faixa_etaria" value="{{ modalidade[2] if modalidade else '' }}"><br>
+
+        <button type="submit">{{ 'Editar' if modalidade else 'Cadastrar' }}</button>
+    </form>
+
+    {% if modalidade %}
+        <form action="del_modalidade" method="post">
+            <input hidden type="text" name="codigo" value="{{ modalidade[0] }}">
+
+            <button type="submit">Deletar</button>
+        </form>
+    {% endif %}
+    
+
+</div>
+
+{% endblock %}

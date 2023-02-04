@@ -91,14 +91,20 @@ def edit_aluno():
             d.write(data)
             d.close()
         
-        cursor.execute(f"select fk_turma_codigo, fk_aluno_cpf from esta_matriculado where fk_aluno_cpf='{cpf}'")
-        aluno_turma = cursor.fetchall()[0]
+        try:
+            cursor.execute(f"select fk_turma_codigo, fk_aluno_cpf from esta_matriculado where fk_aluno_cpf='{cpf}'")
+            aluno_turma = cursor.fetchall()[0]
+        except: 
+            aluno_turma = ''
         
         cursor.execute('select codigo, nome, valor from plano')
         plano = cursor.fetchall()
 
-        cursor.execute('select turma_cod, modalidade_nome, modalidade_faixa_etaria from turma_modalidade')
-        turma = cursor.fetchall()
+        try:
+            cursor.execute('select turma_cod, modalidade_nome, modalidade_faixa_etaria from turma_modalidade')
+            turma = cursor.fetchall()
+        except:
+            turma = ''
         
         return render_template('edit_aluno.html', plano=plano, turma=turma, aluno=aluno, aluno_turma=aluno_turma, image_url=image_url)
 
@@ -117,14 +123,21 @@ def edit_aluno():
         fk_plano_codigo = request.form.get('fk_plano_codigo')
         fk_turma = request.form.get('fk_turma')
 
+        print('$$$$$', cpf)
+
         try:
             if foto == b'':
                 cursor.execute(f"update aluno set nome='{nome}', data_nascimento='{data_nascimento}', fk_plano_codigo='{fk_plano_codigo}' where cpf='{cpf}'")
             else:
                 cursor.execute(f"update aluno set nome='{nome}', data_nascimento='{data_nascimento}', fk_plano_codigo='{fk_plano_codigo}', foto={Binary(foto)} where cpf='{cpf}'")
 
-            cursor.execute(f"update esta_matriculado set fk_turma_codigo={fk_turma} where fk_aluno_cpf='{cpf}' ")
-            conexao.commit()
+            cursor.execute(f"select * from esta_matriculado where fk_aluno_cpf='{cpf}'")
+            if len(cursor.fetchall()) == 0:
+                cursor.execute("insert into esta_matriculado values(%s, %s);", (fk_turma, cpf))
+                conexao.commit()
+            else:
+                cursor.execute(f"update esta_matriculado set fk_turma_codigo={fk_turma} where fk_aluno_cpf='{cpf}' ")
+                conexao.commit()
         
             session['messages'] = 'Aluno editado com sucesso'
         except:
@@ -268,6 +281,76 @@ def del_turma():
         session['messages'] = 'Turma removida com sucesso'
         return redirect('/')
 
+@app.route('/modalidade', methods=['GET', 'POST'])
+def modalidade():
+    if request.method == 'GET':
+        return render_template('modalidade.html')
+        
+    elif request.method == 'POST':
+
+        try:
+            nome = request.form.get('nome')
+            faixa_etaria = request.form.get('faixa_etaria')
+
+            cursor.execute("insert into modalidade(nome, faixa_etaria) values(%s,%s)", (nome, faixa_etaria))
+            conexao.commit()
+
+        except:
+            session['messages'] = 'Erro ao inserir modalidade'
+            return redirect('/')
+
+        session['messages'] = 'Modalidade criada com sucesso'
+        return redirect('/')
+
+@app.route('/edit_modalidade', methods=['GET', 'POST'])
+def edit_modalidade():
+    if request.method == 'GET':
+
+        try:
+            mod_nome = request.args.get('mod')
+
+            cursor.execute(f"select codigo, nome, faixa_etaria from modalidade where nome='{mod_nome}'")
+
+            modalidade = cursor.fetchall()[0]
+
+        except:
+            session['messages'] = 'Erro ao carregar dados'
+            return redirect('/')
+
+        return render_template('modalidade.html', modalidade=modalidade)
+
+    elif request.method == 'POST':
+
+        codigo = request.form.get('codigo')
+        nome = request.form.get('nome')
+        faixa_etaria = request.form.get('faixa_etaria')
+
+        cursor.execute(f"UPDATE modalidade SET nome='{nome}', faixa_etaria='{faixa_etaria}' where codigo={codigo} ")
+        conexao.commit()
+
+        return redirect('/')
+
+@app.route('/del_modalidade', methods=['POST'])
+def del_modalidade():
+    if request.method == 'POST':
+
+        mod_cod = request.form.get('codigo')
+
+        # delete
+        try:
+            cursor.execute(f"delete from esta_matriculado where fk_turma_codigo in (select codigo from turma where fk_modalidade_codigo = {mod_cod})")
+            cursor.execute(f"delete from utiliza where fk_turma_codigo in (select codigo from turma where fk_modalidade_codigo = {mod_cod})")
+            cursor.execute(f"delete from turma where fk_modalidade_codigo = {mod_cod}")
+            cursor.execute(f"delete from modalidade where codigo = {mod_cod}")
+
+            conexao.commit()
+
+        except:
+            session['messages'] = 'Erro ao remover modalidade'
+            return redirect('/')
+    
+        session['messages'] = 'Modalidade removida com sucesso'
+        return redirect('/')
 
 @app.route('/clear_session')
 def clear_session():

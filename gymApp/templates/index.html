@@ -6,12 +6,13 @@
 
     <a href="add_aluno"><button>Cadastrar aluno</button></a>
     <a href="add_turma"><button>Cadastrar turma</button></a>
-    
+    <a href="modalidade"><button>Cadastrar modalidade</button></a>
+
     <hr>
     
     <h4>Alunos</h4>
 
-    <table>
+    <table class="table">
         <tr>
             <th>Aluno</th>
             <th>Turma</th>
@@ -22,9 +23,17 @@
         {% for a in alunos %}
         <tr>
             <td>{{ a[0] }}</td>
+            {% if a[1] %}
             <td><a href="edit_turma?turma={{ a[1] }}">{{ a[1] }}</a></td>
-            <td>{{ a[2] }}</td>
-            <td>{{ a[3] }}</td>
+            {% else %}
+            <td></td>
+            {% endif %}
+            {% if a[2] %}
+            <td><a href="edit_modalidade?mod={{ a[2] }}">{{ a[2] }}</a></td>
+            {% else %}
+            <td></td>
+            {% endif %}
+            <td>{{ a[3] if a[3] else '' }}</td>
             <td>
                 <form action="delete_aluno">
                     <input hidden type="text" name="aluno" value="{{ a[4] }}">
