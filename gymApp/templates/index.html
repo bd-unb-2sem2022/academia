@@ -22,7 +22,10 @@
             <td>{{ a[1] }}</td>
             <td>{{ a[2] }}</td>
             <td>{{ a[3] }}</td>
-            <td><a href="/delete_aluno?aluno={{a[4]}}">Del</a></td>
+            <td>
+                <a href="/delete_aluno?aluno={{a[4]}}">Del</a><br>
+                <a href="/edit_aluno?aluno={{a[4]}}">Edit</a>
+            </td>
         </tr>
         {% endfor %}
     </table>
