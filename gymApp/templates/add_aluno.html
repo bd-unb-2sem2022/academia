@@ -30,7 +30,7 @@
         <select name="fk_turma" id="" required>
             <option value="" selected>----</option>
             {% for p in turma %}
-            <option value="{{ p[0] }}">{{ p[1] }}</option>
+            <option value="{{ p[0] }}">{{ p[0] }} - {{ p[1] }} - {{ p[2] }}</option>
             {% endfor %}
         </select><br>
 

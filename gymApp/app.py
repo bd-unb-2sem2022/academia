@@ -32,7 +32,7 @@ def get_add_aluno():
         cursor.execute('select codigo, nome, valor from plano')
         plano = cursor.fetchall()
 
-        cursor.execute('select codigo, fk_modalidade_codigo from turma')
+        cursor.execute('select turma_cod, modalidade_nome, modalidade_faixa_etaria from turma_modalidade')
         turma = cursor.fetchall()
         
         return render_template('add_aluno.html', plano=plano, turma=turma)
@@ -93,15 +93,18 @@ def edit_aluno():
             session['message'] = 'Usuario não encontrado'
             return redirect('/')
         
-        # gera um nome temporario aleatorio para a imagem
-        image_url = f'static/images/{uuid.uuid4()}.jpeg'
+        
+        image_url=''
+        if aluno[3] != None and aluno[3] != '':
+            # gera um nome temporario aleatorio para a imagem
+            image_url = f'static/images/{uuid.uuid4()}.jpeg'
 
-        # salva a imagem temporariamente em /static/images
-        f = io.BytesIO(aluno[3])
-        data = f.read()
-        d = open(image_url, 'wb')
-        d.write(data)
-        d.close()
+            # salva a imagem temporariamente em /static/images
+            f = io.BytesIO(aluno[3])
+            data = f.read()
+            d = open(image_url, 'wb')
+            d.write(data)
+            d.close()
         
         cursor.execute(f"select fk_turma_codigo, fk_aluno_cpf from esta_matriculado where fk_aluno_cpf='{cpf}'")
         aluno_turma = cursor.fetchall()[0]
@@ -109,7 +112,7 @@ def edit_aluno():
         cursor.execute('select codigo, nome, valor from plano')
         plano = cursor.fetchall()
 
-        cursor.execute('select codigo, fk_modalidade_codigo from turma')
+        cursor.execute('select turma_cod, modalidade_nome, modalidade_faixa_etaria from turma_modalidade')
         turma = cursor.fetchall()
         
         return render_template('edit_aluno.html', plano=plano, turma=turma, aluno=aluno, aluno_turma=aluno_turma, image_url=image_url)
@@ -118,7 +121,8 @@ def edit_aluno():
 
         # remove a imagem temporaria
         image_url = request.args.get('img')
-        os.remove(ABS_PATH+image_url)
+        if image_url:
+            os.remove(ABS_PATH+image_url)
 
         # dados do formulario
         cpf = request.form.get('cpf')

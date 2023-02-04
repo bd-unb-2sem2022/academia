@@ -504,6 +504,15 @@ CREATE VIEW nome_aluno_modalidade_unidade as
 	ON tb5.unidade_codigo = unidade.codigo
 	ORDER BY turma_codigo;
 
+-- view que une a turma com sua modalidade
+create view turma_modalidade as 
+    select t.codigo as turma_cod, m.codigo as modalidade_cod,
+    m.nome as modalidade_nome, m.faixa_etaria as modalidade_faixa_etaria  
+    from turma t
+    left join modalidade m
+    on t.fk_modalidade_codigo = m.codigo
+;
+
 /* ############################
 
 Cria procedure criar_turma, que simultaneamente inserir dados
