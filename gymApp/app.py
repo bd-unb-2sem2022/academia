@@ -26,14 +26,18 @@ def index():
     return render_template('index.html', alunos=res, messages=messages)
 
 @app.route('/add_aluno', methods=['GET', 'POST'])
-def get_add_aluno():
+def add_aluno():
     if request.method == 'GET':
         
-        cursor.execute('select codigo, nome, valor from plano')
-        plano = cursor.fetchall()
+        try:
+            cursor.execute('select codigo, nome, valor from plano')
+            plano = cursor.fetchall()
 
-        cursor.execute('select turma_cod, modalidade_nome, modalidade_faixa_etaria from turma_modalidade')
-        turma = cursor.fetchall()
+            cursor.execute('select turma_cod, modalidade_nome, modalidade_faixa_etaria from turma_modalidade')
+            turma = cursor.fetchall()
+        except:
+            session['msg'] = 'Erro ao carregar dados'
+            return redirect('/')
         
         return render_template('add_aluno.html', plano=plano, turma=turma)
 
@@ -60,25 +64,6 @@ def get_add_aluno():
             session['messages'] = 'Erro ao inserir aluno'
 
         return redirect('/')
-
-    else:
-        session['messages'] = 'verbo HTTP não permitido'
-        return redirect('/')
-
-@app.route('/delete_aluno')
-def delete_aluno():
-    cpf = request.args.get('aluno')
-
-    try:
-        cursor.execute(f"delete from esta_matriculado where fk_aluno_cpf='{cpf}'")
-        cursor.execute(f"delete from aluno where cpf='{cpf}'")
-        conexao.commit()
-    except:
-        session['messages'] = 'Erro ao deletar aluno'
-        return redirect('/')
-
-    session['messages'] = 'Aluno deletado com sucesso'
-    return redirect('/')
 
 @app.route('/edit_aluno', methods=['GET', 'POST'])
 def edit_aluno():
@@ -146,7 +131,144 @@ def edit_aluno():
             session['messages'] = 'Erro ao editar aluno'
 
         return redirect('/')
+
+@app.route('/delete_aluno', methods=['POST'])
+def delete_aluno():
+
+    if request.method == 'POST':
+        cpf = request.form.get('aluno')
+
+        try:
+            cursor.execute(f"delete from esta_matriculado where fk_aluno_cpf='{cpf}'")
+            cursor.execute(f"delete from aluno where cpf='{cpf}'")
+            conexao.commit()
+        except:
+            session['messages'] = 'Erro ao deletar aluno'
+            return redirect('/')
+
+        session['messages'] = 'Aluno deletado com sucesso'
+        return redirect('/')
+
+@app.route('/add_turma', methods=['GET', 'POST'])
+def add_turma():
+    if request.method == 'GET':
+
+        try:
+            cursor.execute('select codigo, nome, faixa_etaria from modalidade')
+            modalidade = cursor.fetchall()
+
+            cursor.execute('select cpf, nome from profissional')
+            profissional = cursor.fetchall()
+
+            cursor.execute('select codigo, numero, endereco from sala_unidade')
+            sala = cursor.fetchall()
+        except:
+            session['messages'] = 'Erro ao carregar dados'
+            return redirect('/')
+        
+        return render_template('add_turma.html', modalidade=modalidade, profissional=profissional, sala=sala)
+
+    elif request.method == 'POST':
+
+        # pega dados do formulario
+        modalidade = request.form.get('fk_modalidade_codigo')
+        profissional = request.form.get('fk_profissional_cpf')
+        sala = request.form.get('fk_sala_codigo')
+        horario_inicio = request.form.get('horario_inicio')
+        horario_fim = request.form.get('horario_fim')
+        dia_semana = request.form.get('dia_semana')
+
+
+        try:
+            cursor.execute("call criar_turma(%s, %s, %s, %s, %s, %s);", (modalidade, profissional, sala, horario_inicio, horario_fim, dia_semana))
+            conexao.commit()
+        
+        except:
+            session['messages'] = 'Erro ao inserir turma'
+            return redirect('/')
+        
+        
+        session['messages'] = 'Turma adicionada com sucesso'
+        return redirect('/')
+
     
+@app.route('/edit_turma', methods=['GET', 'POST'])
+def edit_turma():
+    if request.method == 'GET':
+
+        try:
+            turma_cod = request.args.get('turma')
+
+            cursor.execute(f'select fk_modalidade_codigo, fk_sala_codigo, fk_profissional_cpf, horario_inicio, horario_fim, dia_semana from turma_mod_sala where codigo = {turma_cod}')
+            mod_cod, sala_cod, pro_cod, horario_inicio, horario_fim, dia_semana = cursor.fetchall()[0]
+
+            cursor.execute(f'select codigo, nome, faixa_etaria from modalidade')
+            modalidades = cursor.fetchall()
+
+            cursor.execute('select cpf, nome from profissional')
+            profissionais = cursor.fetchall()
+
+            cursor.execute('select codigo, numero, endereco from sala_unidade')
+            salas = cursor.fetchall()
+
+            cursor.execute('select codigo, numero, endereco from sala_unidade')
+            salas = cursor.fetchall()
+        
+        except:
+            session['messages'] = 'Erro ao carregar dados'
+            return redirect('/')
+        
+        return render_template('edit_turma.html', modalidade=modalidades, mod_cod=mod_cod, profissional=profissionais, pro_cod=pro_cod, sala=salas, sala_cod=sala_cod, horario_inicio=horario_inicio, horario_fim=horario_fim, dia_semana=dia_semana, turma_cod=turma_cod)
+
+    elif request.method == 'POST':
+
+        try:
+            # pega dados do formulario
+            turma_cod = request.form.get('turma_cod')
+            modalidade = request.form.get('fk_modalidade_codigo')
+            profissional = request.form.get('fk_profissional_cpf')
+            sala = request.form.get('fk_sala_codigo')
+            horario_inicio = request.form.get('horario_inicio')
+            horario_fim = request.form.get('horario_fim')
+            dia_semana = request.form.get('dia_semana')
+
+            # updates
+            cursor.execute(f"update turma set fk_modalidade_codigo={modalidade} where codigo={turma_cod}")
+            cursor.execute(f"update conduz set fk_profissional_cpf='{profissional}' where fk_turma_codigo={turma_cod}")
+            cursor.execute(f"update utiliza set fk_sala_codigo={sala}, horario_inicio='{horario_inicio}', horario_fim='{horario_fim}', dia_semana='{dia_semana}' where fk_turma_codigo={turma_cod}")
+
+            conexao.commit()
+
+        except:
+            session['messages'] = 'Erro ao inserir turma'
+            return redirect('/')
+        
+        session['messages'] = 'Turma editada com sucesso'
+        return redirect('/')
+
+
+@app.route('/del_turma', methods=['POST'])
+def del_turma():
+    if request.method == 'POST':
+
+        try:
+            turma_cod = request.form.get('turma_cod')
+
+            # delete
+            cursor.execute(f"delete from utiliza where fk_turma_codigo={turma_cod}")
+            cursor.execute(f"delete from conduz where fk_turma_codigo={turma_cod}")
+            cursor.execute(f"delete from esta_matriculado where fk_turma_codigo={turma_cod}")
+            cursor.execute(f"delete from turma where codigo={turma_cod}")
+            conexao.commit()
+
+        except:
+            session['messages'] = 'Erro ao remover turma'
+            return redirect('/')
+    
+        session['messages'] = 'Turma removida com sucesso'
+        return redirect('/')
+
+
 @app.route('/clear_session')
 def clear_session():
     session.clear()

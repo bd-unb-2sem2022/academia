@@ -3,10 +3,13 @@
 {% block content %}
 
 <div class="card-body">
-    <h4>Alunos</h4>
 
     <a href="add_aluno"><button>Cadastrar aluno</button></a>
-    <br>
+    <a href="add_turma"><button>Cadastrar turma</button></a>
+    
+    <hr>
+    
+    <h4>Alunos</h4>
 
     <table>
         <tr>
@@ -19,12 +22,17 @@
         {% for a in alunos %}
         <tr>
             <td>{{ a[0] }}</td>
-            <td>{{ a[1] }}</td>
+            <td><a href="edit_turma?turma={{ a[1] }}">{{ a[1] }}</a></td>
             <td>{{ a[2] }}</td>
             <td>{{ a[3] }}</td>
             <td>
-                <a href="/delete_aluno?aluno={{a[4]}}">Del</a><br>
-                <a href="/edit_aluno?aluno={{a[4]}}">Edit</a>
+                <form action="delete_aluno">
+                    <input hidden type="text" name="aluno" value="{{ a[4] }}">
+                    <button type="submit">Del</button>
+                </form>
+                <a href="/edit_aluno?aluno={{ a[4] }}">
+                    <button>Edit</button>
+                </a>
             </td>
         </tr>
         {% endfor %}
