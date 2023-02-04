@@ -555,21 +555,31 @@ Chama a procedure criar_turma, como exemplo.
 
 CALL criar_turma(1, '09821374012', 1, '09:00:00', '10:00:00','quinta');
 
+/* ##############################
+
+Cria função para importar arquivos binários (bytea).
+
+#################################*/
+
+CREATE OR REPLACE FUNCTION bytea_import(p_path text, p_result OUT bytea) 
+LANGUAGE plpgsql AS $$
+DECLARE
+  l_oid oid;
+BEGIN
+  SELECT lo_import(p_path) INTO l_oid;
+  SELECT lo_get(l_oid) INTO p_result;
+  PERFORM lo_unlink(l_oid);
+END;$$;
 
 
-/*############################# importar bytea 
-File file = new File("C:\Users\andmi\Downloads\young-bearded-man-with-striped-shirt.jpg");
-FileInputStream fis = new FileInputStream(file);
-PreparedStatement ps = conn.prepareStatement("INSERT INTO aluno VALUES (?, ?, ?, ?, ?)");
-ps.setBinaryStream(4, fis, file.length());
-ps.executeUpdate();
-ps.close();
-fis.close();
+/*####################################################
 
-"C:\Users\andmi\Downloads\young-bearded-man-with-striped-shirt.jpg"
+Chama função para inserir arquivo binário, como exemplo
 
-*/
-       
+##############################################################*/
 
-    
+UPDATE aluno
+SET (foto) = (SELECT bytea_import('C:\Users\Public\Documents\young-bearded-man-with-striped-shirt.jpg'))
+WHERE cpf = '12043814982';
+
 
