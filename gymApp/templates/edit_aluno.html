@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="card-body">
+    <h4>Editar aluno</h4>
+
+    {% if image_url != '' %}
+    <img src="{{ image_url }}" alt="profile photo">
+    {% endif %}
+
+    <form action="/edit_aluno?img={{ image_url }}" method="post" enctype="multipart/form-data">
+        <label for="">CPF</label>
+        <input type="text" name="cpf" id="" value="{{ aluno[0] }}" readonly><br>
+
+        <label for="">Nome</label>
+        <input type="text" name="nome" id="" value="{{ aluno[1] }}"><br>
+
+        <label for="">Data de nascimento</label>
+        <input type="date" name="data_nascimento" id="" value="{{ aluno[2] }}"><br>
+
+        <label for="">Alterar foto de perfil</label>
+        <input type="file" name="foto" id=""><br>
+
+        <label for="">Plano</label>
+        <select name="fk_plano_codigo" id="" required>
+            <option value="" selected>----</option>
+            {% for p in plano %}
+            {% if p[0] == aluno[4] %}
+            <option value="{{ p[0] }}" selected>{{ p[1] }} - {{ p[2] }}</option>
+            {% else %}
+            <option value="{{ p[0] }}">{{ p[1] }} - {{ p[2] }}</option>
+            {% endif %}
+            {% endfor %}
+        </select><br>
+
+        <label for="">Turma</label>
+        <select name="fk_turma" id="" required>
+            <option value="" selected>----</option>
+            {% for p in turma %}
+            {% if p[0] == aluno_turma[0] %}
+            <option value="{{ p[0] }}" selected>{{ p[0] }} - {{ p[1] }} {{ p[2] }}</option>
+            {% else %}
+            <option value="{{ p[0] }}">{{ p[0] }} - {{ p[1] }} {{ p[2] }}</option>
+            {% endif %}
+            {% endfor %}
+        </select><br>
+
+        <button type="submit">Editar</button>
+    </form>
+
+</div>
+
+{% endblock %}

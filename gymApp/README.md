@@ -1,13 +1,13 @@
 # gymApp
 
-Aplicação web CRUD para sistema de academia desenvolvida com Django
+Aplicação web CRUD para sistema de academia desenvolvida com Flask e SQLite
 
 ## Estrutura
 
-- `gymApp`: configurações globais
-- `app`: aplciação web da academia
-    - `templates`: paginas do app
-    - `static`: arquivos de media, css, js... 
+- `db.py`: conexão com o banco de dados
+- `app.py`: aplciação web da academia
+- `templates/`: paginas do app
+- `static/`: arquivos de media, css, js... 
 
 ## Setup
 
@@ -17,7 +17,7 @@ Aplicação web CRUD para sistema de academia desenvolvida com Django
 
 ## Run
 ```sh
-    python3 manage.py runserver
+    flask run --host 0.0.0.0 -p 5000
 ```
 
-- acesse http://localhost:8000
+- acesse: [localhost:5000](http://localhost:5000)

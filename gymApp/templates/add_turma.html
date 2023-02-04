@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="card-body">
+    <h4>Adicionar turma</h4>
+
+    <form action="/add_turma" method="post">
+
+        <label for="">Modalidade</label>
+        <select name="fk_modalidade_codigo" id="" required>
+            <option value="" selected>----</option>
+            {% for p in modalidade %}
+            <option value="{{ p[0] }}">{{ p[1] }} - {{ p[2] }}</option>
+            {% endfor %}
+        </select><br>
+
+        <label for="">Profissional</label>
+        <select name="fk_profissional_cpf" id="" required>
+            <option value="" selected>----</option>
+            {% for p in profissional %}
+            <option value="{{ p[0] }}">{{ p[1] }}</option>
+            {% endfor %}
+        </select><br>
+
+        <label for="">Sala</label>
+        <select name="fk_sala_codigo" id="" required>
+            <option value="" selected>----</option>
+            {% for p in sala %}
+            <option value="{{ p[0] }}">{{ p[1] }} - {{ p[2] }}</option>
+            {% endfor %}
+        </select><br>
+        
+        <label for="">Início</label>
+        <input type="time" name="horario_inicio" id=""><br>
+
+        <label for="">Fim</label>
+        <input type="time" name="horario_fim" id=""><br>
+
+        <label for="">Dias da semana</label>
+        <input type="text" name="dia_semana" id=""><br>
+
+        <button type="submit">Cadastrar</button>
+    </form>
+
+</div>
+
+{% endblock %}

@@ -10,7 +10,7 @@ CREATE TABLE profissional (
     foto BYTEA,
     cref VARCHAR(15) NOT NULL,
     cpf CHAR(11) UNIQUE NOT NULL PRIMARY KEY,
-    nome VARCHAR(50) NOT NULL,
+    nome VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE aluno (
@@ -436,7 +436,10 @@ VALUES
         (1,2,'08:00:00','20:00:00','quarta'),
         (1,2,'08:00:00','18:00:00','sexta'),
         (2,1,'16:00:00','17:00:00','terça'),
-        (2,1,'16:00:00','17:00:00','quinta');
+        (2,1,'16:00:00','17:00:00','quinta'),
+        (5, 5, '12:00:00', '13:00:00', 'terça'),
+        (3, 3, '12:00:00', '13:00:00', 'segunda'),
+        (4, 4, '12:00:00', '13:00:00', 'quarta');
 
 INSERT INTO
     trabalha_em
@@ -478,22 +481,22 @@ alunos, turmas, modalidades e unidades.
 #############################*/
 
 CREATE VIEW nome_aluno_modalidade_unidade as
-	SELECT tb5.aluno as aluno, tb5.turma_codigo as turma_codigo, tb5.modalidade as modalidade, unidade.nome as unidade_nome
+	SELECT tb5.aluno as aluno, tb5.turma_codigo as turma_codigo, tb5.modalidade as modalidade, unidade.nome as unidade_nome, tb5.cpf
 	FROM unidade
 	INNER JOIN
-		(SELECT tb4.aluno as aluno, tb4.modalidade as modalidade, tb4.turma_codigo as turma_codigo, sala.fk_unidade_codigo as unidade_codigo
+		(SELECT tb4.aluno as aluno, tb4.modalidade as modalidade, tb4.turma_codigo as turma_codigo, tb4.cpf, sala.fk_unidade_codigo as unidade_codigo
 		FROM sala
 		INNER JOIN
-			(SELECT DISTINCT tb3.aluno as aluno, tb3.modalidade as modalidade, tb3.turma_codigo as turma_codigo, utiliza.fk_sala_codigo as sala_codigo
+			(SELECT DISTINCT tb3.aluno as aluno, tb3.modalidade as modalidade, tb3.turma_codigo as turma_codigo, tb3.cpf, utiliza.fk_sala_codigo as sala_codigo
 			FROM utiliza
 			INNER JOIN
-				(SELECT tb2.nome as aluno, modalidade.nome as modalidade, tb2.turma_codigo as turma_codigo
+				(SELECT tb2.nome as aluno, modalidade.nome as modalidade, tb2.cpf, tb2.turma_codigo as turma_codigo
 				FROM modalidade
 				INNER JOIN
-					(SELECT tb1.nome, turma.fk_modalidade_codigo, tb1.fk_turma_codigo as turma_codigo
+					(SELECT tb1.nome, tb1.cpf, turma.fk_modalidade_codigo, tb1.fk_turma_codigo as turma_codigo
 					FROM turma
 					INNER JOIN
-						(SELECT aluno.nome, fk_turma_codigo
+						(SELECT aluno.nome, aluno.cpf, fk_turma_codigo
 						FROM aluno 
 						INNER JOIN esta_matriculado 
 						ON fk_aluno_cpf = aluno.cpf) as tb1
@@ -503,6 +506,36 @@ CREATE VIEW nome_aluno_modalidade_unidade as
 		ON tb4.sala_codigo = sala.codigo) as tb5
 	ON tb5.unidade_codigo = unidade.codigo
 	ORDER BY turma_codigo;
+
+-- view que une a turma com sua modalidade
+create view turma_modalidade as 
+    select t.codigo as turma_cod, m.codigo as modalidade_cod,
+    m.nome as modalidade_nome, m.faixa_etaria as modalidade_faixa_etaria  
+    from turma t
+    left join modalidade m
+    on t.fk_modalidade_codigo = m.codigo
+;
+
+-- view que junta sala e informações unidade
+CREATE OR REPLACE VIEW sala_unidade AS 
+    SELECT s.codigo,
+    s.numero,
+    u.endereco
+    FROM sala s
+    LEFT JOIN unidade u ON s.fk_unidade_codigo = u.codigo
+;
+
+-- view que junta codigos de turma, modalidade e sala
+create or replace view turma_mod_sala as 
+select t.codigo, t.fk_modalidade_codigo, u.fk_sala_codigo, c.fk_profissional_cpf,
+u.horario_inicio , u.horario_fim, u.dia_semana
+from turma t
+	inner join utiliza u
+	on t.codigo = u.fk_turma_codigo
+	left join conduz c
+	on t.codigo = c.fk_turma_codigo
+;
+
 
 /* ############################
 
