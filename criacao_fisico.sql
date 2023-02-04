@@ -478,22 +478,22 @@ alunos, turmas, modalidades e unidades.
 #############################*/
 
 CREATE VIEW nome_aluno_modalidade_unidade as
-	SELECT tb5.aluno as aluno, tb5.turma_codigo as turma_codigo, tb5.modalidade as modalidade, unidade.nome as unidade_nome
+	SELECT tb5.aluno as aluno, tb5.turma_codigo as turma_codigo, tb5.modalidade as modalidade, unidade.nome as unidade_nome, tb5.cpf
 	FROM unidade
 	INNER JOIN
-		(SELECT tb4.aluno as aluno, tb4.modalidade as modalidade, tb4.turma_codigo as turma_codigo, sala.fk_unidade_codigo as unidade_codigo
+		(SELECT tb4.aluno as aluno, tb4.modalidade as modalidade, tb4.turma_codigo as turma_codigo, tb4.cpf, sala.fk_unidade_codigo as unidade_codigo
 		FROM sala
 		INNER JOIN
-			(SELECT DISTINCT tb3.aluno as aluno, tb3.modalidade as modalidade, tb3.turma_codigo as turma_codigo, utiliza.fk_sala_codigo as sala_codigo
+			(SELECT DISTINCT tb3.aluno as aluno, tb3.modalidade as modalidade, tb3.turma_codigo as turma_codigo, tb3.cpf, utiliza.fk_sala_codigo as sala_codigo
 			FROM utiliza
 			INNER JOIN
-				(SELECT tb2.nome as aluno, modalidade.nome as modalidade, tb2.turma_codigo as turma_codigo
+				(SELECT tb2.nome as aluno, modalidade.nome as modalidade, tb2.cpf, tb2.turma_codigo as turma_codigo
 				FROM modalidade
 				INNER JOIN
-					(SELECT tb1.nome, turma.fk_modalidade_codigo, tb1.fk_turma_codigo as turma_codigo
+					(SELECT tb1.nome, tb1.cpf, turma.fk_modalidade_codigo, tb1.fk_turma_codigo as turma_codigo
 					FROM turma
 					INNER JOIN
-						(SELECT aluno.nome, fk_turma_codigo
+						(SELECT aluno.nome, aluno.cpf, fk_turma_codigo
 						FROM aluno 
 						INNER JOIN esta_matriculado 
 						ON fk_aluno_cpf = aluno.cpf) as tb1
