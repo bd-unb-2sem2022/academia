@@ -87,7 +87,7 @@ def edit_aluno():
             # salva a imagem temporariamente em /static/images
             f = io.BytesIO(aluno[3])
             data = f.read()
-            d = open(image_url, 'wb')
+            d = open(ABS_PATH+image_url, 'wb')
             d.write(data)
             d.close()
         
