@@ -480,6 +480,7 @@ alunos, turmas, modalidades e unidades.
 
 #############################*/
 
+/*
 CREATE VIEW nome_aluno_modalidade_unidade as
 	SELECT tb5.aluno as aluno, tb5.turma_codigo as turma_codigo, tb5.modalidade as modalidade, unidade.nome as unidade_nome, tb5.cpf
 	FROM unidade
@@ -506,6 +507,29 @@ CREATE VIEW nome_aluno_modalidade_unidade as
 		ON tb4.sala_codigo = sala.codigo) as tb5
 	ON tb5.unidade_codigo = unidade.codigo
 	ORDER BY turma_codigo;
+*/
+
+-- view refatora (para poder aparecer alunos que não estejam em nenhuma turma)
+CREATE OR REPLACE VIEW nome_aluno_modalidade_unidade as
+select
+	a.cpf, a.nome as aluno,
+	em.fk_turma_codigo as turma_codigo,
+	m.nome as modalidade,
+	u2.nome as unidade_nome
+from aluno a
+	left join esta_matriculado em
+	on a.cpf = em.fk_aluno_cpf
+	left join modalidade m 
+	on m.codigo in (
+		select fk_modalidade_codigo from turma where codigo=em.fk_turma_codigo
+	)
+	left join unidade u2 
+	on u2.codigo in (
+		select fk_unidade_codigo from sala where codigo in (
+			select fk_sala_codigo from utiliza where fk_turma_codigo=em.fk_turma_codigo
+		)
+	)
+;
 
 -- view que une a turma com sua modalidade
 create view turma_modalidade as 

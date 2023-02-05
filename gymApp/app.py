@@ -123,8 +123,6 @@ def edit_aluno():
         fk_plano_codigo = request.form.get('fk_plano_codigo')
         fk_turma = request.form.get('fk_turma')
 
-        print('$$$$$', cpf)
-
         try:
             if foto == b'':
                 cursor.execute(f"update aluno set nome='{nome}', data_nascimento='{data_nascimento}', fk_plano_codigo='{fk_plano_codigo}' where cpf='{cpf}'")
@@ -340,7 +338,9 @@ def del_modalidade():
         try:
             cursor.execute(f"delete from esta_matriculado where fk_turma_codigo in (select codigo from turma where fk_modalidade_codigo = {mod_cod})")
             cursor.execute(f"delete from utiliza where fk_turma_codigo in (select codigo from turma where fk_modalidade_codigo = {mod_cod})")
+            cursor.execute(f"delete from conduz where fk_turma_codigo in (select codigo from turma where fk_modalidade_codigo={mod_cod})")
             cursor.execute(f"delete from turma where fk_modalidade_codigo = {mod_cod}")
+            cursor.execute(f"delete from compreende where fk_modalidade_codigo = {mod_cod}")
             cursor.execute(f"delete from modalidade where codigo = {mod_cod}")
 
             conexao.commit()
