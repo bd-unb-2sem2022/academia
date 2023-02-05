@@ -6,30 +6,35 @@
     
     <h4>{{ "Editar modalidade" if modalidade else "Adicionar modalidade" }}</h4>
 
-    <form action="/{{ 'edit_modalidade' if modalidade else 'modalidade' }}" method="post">
+    <form action="/{{ 'edit_modalidade' if modalidade else 'modalidade' }}" method="post" class="form">
 
         {% if modalidade %}
         <input hidden type="text" name="codigo" value="{{ modalidade[0] }}">
         {% endif %}
 
-        <label for="">Nome</label>
-        <input type="text" name="nome" value="{{ modalidade[1] if modalidade else '' }}"><br>
+        <div class="form-group">
+            <label for="">Nome</label>
+            <input class="form-control" type="text" name="nome" value="{{ modalidade[1] if modalidade else '' }}">
+        </div>
 
-        <label for="">Faixa Etária</label>
-        <input type="text" name="faixa_etaria" value="{{ modalidade[2] if modalidade else '' }}"><br>
+        <div class="form-group">
+            <label for="">Faixa Etária</label>
+            <input class="form-control" type="text" name="faixa_etaria" value="{{ modalidade[2] if modalidade else '' }}">
+        </div>
 
-        <button type="submit">{{ 'Editar' if modalidade else 'Cadastrar' }}</button>
+        <hr>
+        <button class="btn btn-success" type="submit">{{ 'Editar' if modalidade else 'Cadastrar' }}</button>
     </form>
+
+    <br>
 
     {% if modalidade %}
         <form action="del_modalidade" method="post">
             <input hidden type="text" name="codigo" value="{{ modalidade[0] }}">
 
-            <button type="submit">Deletar</button>
+            <button class="btn btn-danger" type="submit">Deletar</button>
         </form>
     {% endif %}
-    
-
 </div>
 
 {% endblock %}

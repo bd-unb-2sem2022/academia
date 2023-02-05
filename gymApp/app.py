@@ -111,7 +111,7 @@ def edit_aluno():
     elif request.method == 'POST':
 
         # remove a imagem temporaria
-        image_url = request.args.get('img')
+        image_url = request.form.get('image_url')
         if image_url:
             os.remove(ABS_PATH+image_url)
 

@@ -5,42 +5,55 @@
 <div class="card-body">
     <h4>Adicionar turma</h4>
 
-    <form action="/add_turma" method="post">
+    <form action="/add_turma" method="post" class="form">
 
-        <label for="">Modalidade</label>
-        <select name="fk_modalidade_codigo" id="" required>
-            <option value="" selected>----</option>
-            {% for p in modalidade %}
-            <option value="{{ p[0] }}">{{ p[1] }} - {{ p[2] }}</option>
-            {% endfor %}
-        </select><br>
+        <div class="form-group">
+            <label for="">Modalidade</label>
+            <select class="form-control" name="fk_modalidade_codigo" id="" required>
+                <option value="" selected>----</option>
+                {% for p in modalidade %}
+                <option value="{{ p[0] }}">{{ p[1] }} - {{ p[2] }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-        <label for="">Profissional</label>
-        <select name="fk_profissional_cpf" id="" required>
-            <option value="" selected>----</option>
-            {% for p in profissional %}
-            <option value="{{ p[0] }}">{{ p[1] }}</option>
-            {% endfor %}
-        </select><br>
+        <div class="form-group">
+            <label for="">Profissional</label>
+            <select class="form-control" name="fk_profissional_cpf" id="" required>
+                <option value="" selected>----</option>
+                {% for p in profissional %}
+                <option value="{{ p[0] }}">{{ p[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-        <label for="">Sala</label>
-        <select name="fk_sala_codigo" id="" required>
-            <option value="" selected>----</option>
-            {% for p in sala %}
-            <option value="{{ p[0] }}">{{ p[1] }} - {{ p[2] }}</option>
-            {% endfor %}
-        </select><br>
+        <div class="form-group">
+            <label for="">Sala</label>
+            <select class="form-control" name="fk_sala_codigo" id="" required>
+                <option value="" selected>----</option>
+                {% for p in sala %}
+                <option value="{{ p[0] }}">{{ p[1] }} - {{ p[2] }}</option>
+                {% endfor %}
+            </select>
+        </div>
         
-        <label for="">Início</label>
-        <input type="time" name="horario_inicio" id=""><br>
+        <div class="form-group">
+            <label for="">Início</label>
+            <input class="form-control" type="time" name="horario_inicio" id="">
+        </div>
 
-        <label for="">Fim</label>
-        <input type="time" name="horario_fim" id=""><br>
+        <div class="form-group">
+            <label for="">Fim</label>
+            <input class="form-control" type="time" name="horario_fim" id="">
+        </div>
 
-        <label for="">Dias da semana</label>
-        <input type="text" name="dia_semana" id=""><br>
+        <div class="form-group">
+            <label for="">Dias da semana</label>
+            <input class="form-control" type="text" name="dia_semana" id="">
+        </div>
 
-        <button type="submit">Cadastrar</button>
+        <hr>
+        <button type="submit" class="btn btn-success">Cadastrar</button>
     </form>
 
 </div>

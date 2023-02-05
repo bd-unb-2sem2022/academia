@@ -9,55 +9,69 @@
 
         <input hidden type="text" name="turma_cod" value="{{ turma_cod }}">
 
-        <label for="">Modalidade</label>
-        <select name="fk_modalidade_codigo" id="" required>
-            {% for p in modalidade %}
-            {% if p[0] == mod_cod %}
-            <option selected value="{{ p[0] }}">{{ p[1] }} - {{ p[2] }}</option>
-            {% else %}
-            <option value="{{ p[0] }}">{{ p[1] }} - {{ p[2] }}</option>
-            {% endif %}
-            {% endfor %}
-        </select><br>
-
-        <label for="">Profissional</label>
-        <select name="fk_profissional_cpf" id="" required>
-            {% for p in profissional %}
-            {% if p[0] == pro_cod %}
-            <option selected value="{{ p[0] }}">{{ p[1] }}</option>
-            {% else %}
-            <option value="{{ p[0] }}">{{ p[1] }}</option>
-            {% endif %}
-            {% endfor %}
-        </select><br>
-
-        <label for="">Sala</label>
-        <select name="fk_sala_codigo" id="" required>
-            {% for p in sala %}
-            {% if p[0] == sala_cod %}
-            <option selected value="{{ p[0] }}">{{ p[1] }} - {{ p[2] }}</option>
-            {% else %}
-            <option value="{{ p[0] }}">{{ p[1] }} - {{ p[2] }}</option>
-            {% endif %}
-            {% endfor %}
-        </select><br>
         
-        <label for="">Início</label>
-        <input type="time" name="horario_inicio" id="" value="{{ horario_inicio }}"><br>
+        <div class="form-group">
+            <label for="">Modalidade</label>
+            <select class="form-control" name="fk_modalidade_codigo" id="" required>
+                {% for p in modalidade %}
+                {% if p[0] == mod_cod %}
+                <option selected value="{{ p[0] }}">{{ p[1] }} - {{ p[2] }}</option>
+                {% else %}
+                <option value="{{ p[0] }}">{{ p[1] }} - {{ p[2] }}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </div>
 
-        <label for="">Fim</label>
-        <input type="time" name="horario_fim" id="" value="{{ horario_fim }}"><br>
+        <div class="form-group">
+            <label for="">Profissional</label>
+            <select class="form-control" name="fk_profissional_cpf" id="" required>
+                {% for p in profissional %}
+                {% if p[0] == pro_cod %}
+                <option selected value="{{ p[0] }}">{{ p[1] }}</option>
+                {% else %}
+                <option value="{{ p[0] }}">{{ p[1] }}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </div>
 
-        <label for="">Dias da semana</label>
-        <input type="text" name="dia_semana" id="" value="{{ dia_semana }}"><br>
+        <div class="form-group">
+            <label for="">Sala</label>
+            <select class="form-control" name="fk_sala_codigo" id="" required>
+                {% for p in sala %}
+                {% if p[0] == sala_cod %}
+                <option selected value="{{ p[0] }}">{{ p[1] }} - {{ p[2] }}</option>
+                {% else %}
+                <option value="{{ p[0] }}">{{ p[1] }} - {{ p[2] }}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="">Início</label>
+            <input class="form-control" type="time" name="horario_inicio" id="" value="{{ horario_inicio }}">
+        </div>
 
-        <button type="submit">Editar</button>
+        <div class="form-group">
+            <label for="">Fim</label>
+            <input class="form-control" type="time" name="horario_fim" id="" value="{{ horario_fim }}">
+        </div>
+
+        <div class="form-group">
+            <label for="">Dias da semana</label>
+            <input class="form-control" type="text" name="dia_semana" id="" value="{{ dia_semana }}">
+        </div>
+
+        <hr>
+        <button type="submit" class="btn btn-success">Editar</button>
     </form>
-
+    <br>
     <form action="del_turma" method="post">
         <input hidden type="text" name="turma_cod" value="{{ turma_cod }}">
 
-        <button type="submit">Remover turma</button>
+        <button type="submit" class="btn btn-danger">Remover turma</button>
     </form>
 
 </div>

@@ -4,9 +4,9 @@
 
 <div class="card-body">
 
-    <a href="add_aluno"><button>Cadastrar aluno</button></a>
-    <a href="add_turma"><button>Cadastrar turma</button></a>
-    <a href="modalidade"><button>Cadastrar modalidade</button></a>
+    <a href="add_aluno"><button class="btn btn-dark">Cadastrar aluno</button></a>
+    <a href="add_turma"><button class="btn btn-dark">Cadastrar turma</button></a>
+    <a href="modalidade"><button class="btn btn-dark">Cadastrar modalidade</button></a>
 
     <hr>
     
@@ -35,13 +35,17 @@
             {% endif %}
             <td>{{ a[3] if a[3] else '' }}</td>
             <td>
-                <form action="delete_aluno">
-                    <input hidden type="text" name="aluno" value="{{ a[4] }}">
-                    <button type="submit">Del</button>
-                </form>
-                <a href="/edit_aluno?aluno={{ a[4] }}">
-                    <button>Edit</button>
-                </a>
+                <div class="col1">
+                    <form action="delete_aluno" method="post">
+                        <input hidden type="text" name="aluno" value="{{ a[4] }}">
+                        <button class="btn btn-secondary" type="submit">Del</button>
+                    </form>
+                </div>
+                <div class="col2">
+                    <a href="/edit_aluno?aluno={{ a[4] }}">
+                        <button class="btn btn-secondary">Edit</button>
+                    </a>
+                </div>
             </td>
         </tr>
         {% endfor %}

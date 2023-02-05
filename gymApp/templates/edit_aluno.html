@@ -9,44 +9,57 @@
     <img src="{{ image_url }}" alt="profile photo">
     {% endif %}
 
-    <form action="/edit_aluno?img={{ image_url }}" method="post" enctype="multipart/form-data">
-        <label for="">CPF</label>
-        <input type="text" name="cpf" id="" value="{{ aluno[0] }}" readonly><br>
+    <form action="/edit_aluno" method="post" enctype="multipart/form-data" class="form">
 
-        <label for="">Nome</label>
-        <input type="text" name="nome" id="" value="{{ aluno[1] }}"><br>
+        <input type="hidden" name="image_url" value="{{ image_url }}">
+        
+        <input hidden type="text" name="cpf" id="" value="{{ aluno[0] }}">
 
-        <label for="">Data de nascimento</label>
-        <input type="date" name="data_nascimento" id="" value="{{ aluno[2] }}"><br>
+        <div class="form-group">
+            <label for="">Nome</label>
+            <input class="form-control" type="text" name="nome" id="" value="{{ aluno[1] }}">
+        </div>
 
-        <label for="">Alterar foto de perfil</label>
-        <input type="file" name="foto" id=""><br>
+        <div class="form-group">
+            <label for="">Data de nascimento</label>
+            <input class="form-control" type="date" name="data_nascimento" id="" value="{{ aluno[2] }}">
+        </div>
 
-        <label for="">Plano</label>
-        <select name="fk_plano_codigo" id="" required>
-            <option value="" selected>----</option>
-            {% for p in plano %}
-            {% if p[0] == aluno[4] %}
-            <option value="{{ p[0] }}" selected>{{ p[1] }} - {{ p[2] }}</option>
-            {% else %}
-            <option value="{{ p[0] }}">{{ p[1] }} - {{ p[2] }}</option>
-            {% endif %}
-            {% endfor %}
-        </select><br>
+        <div class="form-group">
+            <label for="">Alterar foto de perfil</label>
+            <input class="form-control" type="file" name="foto" id="">
+        </div>
 
-        <label for="">Turma</label>
-        <select name="fk_turma" id="" required>
-            <option value="" selected>----</option>
-            {% for p in turma %}
-            {% if p[0] == aluno_turma[0] %}
-            <option value="{{ p[0] }}" selected>{{ p[0] }} - {{ p[1] }} {{ p[2] }}</option>
-            {% else %}
-            <option value="{{ p[0] }}">{{ p[0] }} - {{ p[1] }} {{ p[2] }}</option>
-            {% endif %}
-            {% endfor %}
-        </select><br>
+        <div class="form-group">
+            <label for="">Plano</label>
+            <select class="form-control" name="fk_plano_codigo" id="" required>
+                <option value="" selected>----</option>
+                {% for p in plano %}
+                {% if p[0] == aluno[4] %}
+                <option value="{{ p[0] }}" selected>{{ p[1] }} - {{ p[2] }}</option>
+                {% else %}
+                <option value="{{ p[0] }}">{{ p[1] }} - {{ p[2] }}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </div>
 
-        <button type="submit">Editar</button>
+        <div class="form-group">
+            <label for="">Turma</label>
+            <select class="form-control" name="fk_turma" id="" required>
+                <option value="" selected>----</option>
+                {% for p in turma %}
+                {% if p[0] == aluno_turma[0] %}
+                <option value="{{ p[0] }}" selected>{{ p[0] }} - {{ p[1] }} {{ p[2] }}</option>
+                {% else %}
+                <option value="{{ p[0] }}">{{ p[0] }} - {{ p[1] }} {{ p[2] }}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+
+        <hr>
+        <button class="btn btn-success" type="submit">Editar</button>
     </form>
 
 </div>
