@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, redirect, session
 from psycopg2 import Binary
-from db import conexao
-import io, uuid, os
+import io, uuid, os, db
 
 
 app = Flask(__name__)
@@ -9,8 +8,6 @@ app.secret_key = 'e7b047ff4089f5d0a187d4c44d8633115af223407bd578511c3ba346cf8608
 app.config['SESSION_TYPE'] = 'filesystem'
 
 ABS_PATH = os.path.abspath(__file__)[:-6]
-
-cursor = conexao.cursor()
 
 # routes
 @app.route('/')
@@ -20,8 +17,7 @@ def index():
     except:
         messages = ''
 
-    cursor.execute('select aluno, turma_codigo, modalidade, unidade_nome, cpf from nome_aluno_modalidade_unidade')
-    res = cursor.fetchall()
+    res = db.query(['select aluno, turma_codigo, modalidade, unidade_nome, cpf from nome_aluno_modalidade_unidade'])[0]
 
     return render_template('index.html', alunos=res, messages=messages)
 
@@ -30,11 +26,10 @@ def add_aluno():
     if request.method == 'GET':
         
         try:
-            cursor.execute('select codigo, nome, valor from plano')
-            plano = cursor.fetchall()
-
-            cursor.execute('select turma_cod, modalidade_nome, modalidade_faixa_etaria from turma_modalidade')
-            turma = cursor.fetchall()
+            plano, turma = db.query([
+                'select codigo, nome, valor from plano',
+                'select turma_cod, modalidade_nome, modalidade_faixa_etaria from turma_modalidade'
+            ])
         except:
             session['msg'] = 'Erro ao carregar dados'
             return redirect('/')
@@ -54,14 +49,16 @@ def add_aluno():
         # TODO: validação e sanitização dos dados inseridos
 
 
-        try:
-            cursor.execute("insert into aluno values (%s,%s,%s,%s,%s)", (cpf, nome, data_nascimento, foto, fk_plano_codigo))
-            cursor.execute("insert into esta_matriculado values (%s,%s)", (fk_turma, cpf))
-            conexao.commit()
+        #try:
+
+        db.query([
+            "insert into aluno values ('%s','%s','%s',%s,'%s')" % (cpf, nome, data_nascimento, foto, fk_plano_codigo),
+            "insert into esta_matriculado values ('%s','%s')" % (fk_turma, cpf)
+        ])
             
-            session['messages'] = 'Aluno inserido com sucesso'
-        except:
-            session['messages'] = 'Erro ao inserir aluno'
+            #session['messages'] = 'Aluno inserido com sucesso'
+        #except:
+        #    session['messages'] = 'Erro ao inserir aluno'
 
         return redirect('/')
 
@@ -72,8 +69,7 @@ def edit_aluno():
     if request.method == 'GET':
 
         try:
-            cursor.execute(f"select cpf, nome, data_nascimento, foto, fk_plano_codigo from aluno where cpf='{cpf}'")
-            aluno = cursor.fetchall()[0]
+            aluno = db.query([f"select cpf, nome, data_nascimento, foto, fk_plano_codigo from aluno where cpf='{cpf}'"])[0][0]
         except:
             session['message'] = 'Usuario não encontrado'
             return redirect('/')
@@ -91,20 +87,22 @@ def edit_aluno():
             d.write(data)
             d.close()
         
+        aluno_turma = ''
+        turma = ''
         try:
-            cursor.execute(f"select fk_turma_codigo, fk_aluno_cpf from esta_matriculado where fk_aluno_cpf='{cpf}'")
-            aluno_turma = cursor.fetchall()[0]
-        except: 
-            aluno_turma = ''
-        
-        cursor.execute('select codigo, nome, valor from plano')
-        plano = cursor.fetchall()
+            aluno_turma, turma, plano = db.query([
+                f"select fk_turma_codigo, fk_aluno_cpf from esta_matriculado where fk_aluno_cpf='{cpf}'",
+                'select turma_cod, modalidade_nome, modalidade_faixa_etaria from turma_modalidade',
+                'select codigo, nome, valor from plano'
+            ])
+            if len(aluno_turma) == 0:
+                aluno_turma = ''
+            else:
+                aluno_turma = aluno_turma[0]
 
-        try:
-            cursor.execute('select turma_cod, modalidade_nome, modalidade_faixa_etaria from turma_modalidade')
-            turma = cursor.fetchall()
         except:
-            turma = ''
+            session['message'] = 'Erro ao carregar dados'
+            return redirect('/')
         
         return render_template('edit_aluno.html', plano=plano, turma=turma, aluno=aluno, aluno_turma=aluno_turma, image_url=image_url)
 
@@ -125,17 +123,15 @@ def edit_aluno():
 
         try:
             if foto == b'':
-                cursor.execute(f"update aluno set nome='{nome}', data_nascimento='{data_nascimento}', fk_plano_codigo='{fk_plano_codigo}' where cpf='{cpf}'")
+                db.query([f"update aluno set nome='{nome}', data_nascimento='{data_nascimento}', fk_plano_codigo='{fk_plano_codigo}' where cpf='{cpf}'"])
             else:
-                cursor.execute(f"update aluno set nome='{nome}', data_nascimento='{data_nascimento}', fk_plano_codigo='{fk_plano_codigo}', foto={Binary(foto)} where cpf='{cpf}'")
+                db.query([f"update aluno set nome='{nome}', data_nascimento='{data_nascimento}', fk_plano_codigo='{fk_plano_codigo}', foto={Binary(foto)} where cpf='{cpf}'"])
 
-            cursor.execute(f"select * from esta_matriculado where fk_aluno_cpf='{cpf}'")
-            if len(cursor.fetchall()) == 0:
-                cursor.execute("insert into esta_matriculado values(%s, %s);", (fk_turma, cpf))
-                conexao.commit()
+            res = db.query([f"select * from esta_matriculado where fk_aluno_cpf='{cpf}'"])[0]
+            if len(res) == 0:
+                db.query([f"insert into esta_matriculado values({fk_turma}, '{cpf}') "])
             else:
-                cursor.execute(f"update esta_matriculado set fk_turma_codigo={fk_turma} where fk_aluno_cpf='{cpf}' ")
-                conexao.commit()
+                db.query([f"update esta_matriculado set fk_turma_codigo={fk_turma} where fk_aluno_cpf='{cpf}' "])
         
             session['messages'] = 'Aluno editado com sucesso'
         except:
@@ -150,9 +146,10 @@ def delete_aluno():
         cpf = request.form.get('aluno')
 
         try:
-            cursor.execute(f"delete from esta_matriculado where fk_aluno_cpf='{cpf}'")
-            cursor.execute(f"delete from aluno where cpf='{cpf}'")
-            conexao.commit()
+            db.query([
+                f"delete from esta_matriculado where fk_aluno_cpf='{cpf}'",
+                f"delete from aluno where cpf='{cpf}'"
+            ])
         except:
             session['messages'] = 'Erro ao deletar aluno'
             return redirect('/')
@@ -165,14 +162,11 @@ def add_turma():
     if request.method == 'GET':
 
         try:
-            cursor.execute('select codigo, nome, faixa_etaria from modalidade')
-            modalidade = cursor.fetchall()
-
-            cursor.execute('select cpf, nome from profissional')
-            profissional = cursor.fetchall()
-
-            cursor.execute('select codigo, numero, endereco from sala_unidade')
-            sala = cursor.fetchall()
+            modalidade, profissional, sala = db.query([
+                'select codigo, nome, faixa_etaria from modalidade',
+                'select cpf, nome from profissional',
+                'select codigo, numero, endereco from sala_unidade'
+            ])
         except:
             session['messages'] = 'Erro ao carregar dados'
             return redirect('/')
@@ -191,8 +185,7 @@ def add_turma():
 
 
         try:
-            cursor.execute("call criar_turma(%s, %s, %s, %s, %s, %s);", (modalidade, profissional, sala, horario_inicio, horario_fim, dia_semana))
-            conexao.commit()
+            db.query(["call criar_turma(%s, '%s', %s, '%s', '%s', '%s');" % (modalidade, profissional, sala, horario_inicio, horario_fim, dia_semana)])
         
         except:
             session['messages'] = 'Erro ao inserir turma'
@@ -210,20 +203,14 @@ def edit_turma():
         try:
             turma_cod = request.args.get('turma')
 
-            cursor.execute(f'select fk_modalidade_codigo, fk_sala_codigo, fk_profissional_cpf, horario_inicio, horario_fim, dia_semana from turma_mod_sala where codigo = {turma_cod}')
-            mod_cod, sala_cod, pro_cod, horario_inicio, horario_fim, dia_semana = cursor.fetchall()[0]
+            data, modalidades, profissionais, salas = db.query([
+                f'select fk_modalidade_codigo, fk_sala_codigo, fk_profissional_cpf, horario_inicio, horario_fim, dia_semana from turma_mod_sala where codigo = {turma_cod}',
+                'select codigo, nome, faixa_etaria from modalidade',
+                'select cpf, nome from profissional',
+                'select codigo, numero, endereco from sala_unidade'
+            ])
 
-            cursor.execute(f'select codigo, nome, faixa_etaria from modalidade')
-            modalidades = cursor.fetchall()
-
-            cursor.execute('select cpf, nome from profissional')
-            profissionais = cursor.fetchall()
-
-            cursor.execute('select codigo, numero, endereco from sala_unidade')
-            salas = cursor.fetchall()
-
-            cursor.execute('select codigo, numero, endereco from sala_unidade')
-            salas = cursor.fetchall()
+            mod_cod, sala_cod, pro_cod, horario_inicio, horario_fim, dia_semana = data[0]
         
         except:
             session['messages'] = 'Erro ao carregar dados'
@@ -244,11 +231,11 @@ def edit_turma():
             dia_semana = request.form.get('dia_semana')
 
             # updates
-            cursor.execute(f"update turma set fk_modalidade_codigo={modalidade} where codigo={turma_cod}")
-            cursor.execute(f"update conduz set fk_profissional_cpf='{profissional}' where fk_turma_codigo={turma_cod}")
-            cursor.execute(f"update utiliza set fk_sala_codigo={sala}, horario_inicio='{horario_inicio}', horario_fim='{horario_fim}', dia_semana='{dia_semana}' where fk_turma_codigo={turma_cod}")
-
-            conexao.commit()
+            db.query([
+                f"update turma set fk_modalidade_codigo={modalidade} where codigo={turma_cod}",
+                f"update conduz set fk_profissional_cpf='{profissional}' where fk_turma_codigo={turma_cod}",
+                f"update utiliza set fk_sala_codigo={sala}, horario_inicio='{horario_inicio}', horario_fim='{horario_fim}', dia_semana='{dia_semana}' where fk_turma_codigo={turma_cod}"
+            ])
 
         except:
             session['messages'] = 'Erro ao inserir turma'
@@ -266,11 +253,12 @@ def del_turma():
             turma_cod = request.form.get('turma_cod')
 
             # delete
-            cursor.execute(f"delete from utiliza where fk_turma_codigo={turma_cod}")
-            cursor.execute(f"delete from conduz where fk_turma_codigo={turma_cod}")
-            cursor.execute(f"delete from esta_matriculado where fk_turma_codigo={turma_cod}")
-            cursor.execute(f"delete from turma where codigo={turma_cod}")
-            conexao.commit()
+            db.query([
+                f"delete from utiliza where fk_turma_codigo={turma_cod}",
+                f"delete from conduz where fk_turma_codigo={turma_cod}",
+                f"delete from esta_matriculado where fk_turma_codigo={turma_cod}",
+                f"delete from turma where codigo={turma_cod}"
+            ])
 
         except:
             session['messages'] = 'Erro ao remover turma'
@@ -290,8 +278,7 @@ def modalidade():
             nome = request.form.get('nome')
             faixa_etaria = request.form.get('faixa_etaria')
 
-            cursor.execute("insert into modalidade(nome, faixa_etaria) values(%s,%s)", (nome, faixa_etaria))
-            conexao.commit()
+            db.query([f"insert into modalidade(nome, faixa_etaria) values('{nome}','{faixa_etaria}')"])
 
         except:
             session['messages'] = 'Erro ao inserir modalidade'
@@ -307,9 +294,7 @@ def edit_modalidade():
         try:
             mod_nome = request.args.get('mod')
 
-            cursor.execute(f"select codigo, nome, faixa_etaria from modalidade where nome='{mod_nome}'")
-
-            modalidade = cursor.fetchall()[0]
+            modalidade = db.query([f"select codigo, nome, faixa_etaria from modalidade where nome='{mod_nome}'"])[0][0]
 
         except:
             session['messages'] = 'Erro ao carregar dados'
@@ -323,8 +308,7 @@ def edit_modalidade():
         nome = request.form.get('nome')
         faixa_etaria = request.form.get('faixa_etaria')
 
-        cursor.execute(f"UPDATE modalidade SET nome='{nome}', faixa_etaria='{faixa_etaria}' where codigo={codigo} ")
-        conexao.commit()
+        db.query([f"UPDATE modalidade SET nome='{nome}', faixa_etaria='{faixa_etaria}' where codigo={codigo} "])
 
         return redirect('/')
 
@@ -336,14 +320,14 @@ def del_modalidade():
 
         # delete
         try:
-            cursor.execute(f"delete from esta_matriculado where fk_turma_codigo in (select codigo from turma where fk_modalidade_codigo = {mod_cod})")
-            cursor.execute(f"delete from utiliza where fk_turma_codigo in (select codigo from turma where fk_modalidade_codigo = {mod_cod})")
-            cursor.execute(f"delete from conduz where fk_turma_codigo in (select codigo from turma where fk_modalidade_codigo={mod_cod})")
-            cursor.execute(f"delete from turma where fk_modalidade_codigo = {mod_cod}")
-            cursor.execute(f"delete from compreende where fk_modalidade_codigo = {mod_cod}")
-            cursor.execute(f"delete from modalidade where codigo = {mod_cod}")
-
-            conexao.commit()
+            db.query([
+                f"delete from esta_matriculado where fk_turma_codigo in (select codigo from turma where fk_modalidade_codigo = {mod_cod})",
+                f"delete from utiliza where fk_turma_codigo in (select codigo from turma where fk_modalidade_codigo = {mod_cod})",
+                f"delete from conduz where fk_turma_codigo in (select codigo from turma where fk_modalidade_codigo={mod_cod})",
+                f"delete from turma where fk_modalidade_codigo = {mod_cod}",
+                f"delete from compreende where fk_modalidade_codigo = {mod_cod}",
+                f"delete from modalidade where codigo = {mod_cod}"
+            ])
 
         except:
             session['messages'] = 'Erro ao remover modalidade'
