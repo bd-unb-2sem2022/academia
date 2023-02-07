@@ -39,7 +39,7 @@
 
         <div class="form-group">
             <label for="">Turma</label>
-            <select class="form-control" name="fk_turma" id="" required>
+            <select class="form-control" name="fk_turma" id="" >
                 <option value="" selected>----</option>
                 {% for p in turma %}
                 <option value="{{ p[0] }}">{{ p[0] }} - {{ p[1] }} - {{ p[2] }}</option>

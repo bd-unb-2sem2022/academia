@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, session
 from psycopg2 import Binary
-import io, uuid, os, db
+import io, uuid, os
+import db, valid
 
 
 app = Flask(__name__)
@@ -31,7 +32,7 @@ def add_aluno():
                 'select turma_cod, modalidade_nome, modalidade_faixa_etaria from turma_modalidade'
             ])
         except:
-            session['msg'] = 'Erro ao carregar dados'
+            session['messgages'] = 'Erro ao carregar dados'
             return redirect('/')
         
         return render_template('add_aluno.html', plano=plano, turma=turma)
@@ -46,19 +47,20 @@ def add_aluno():
         fk_plano_codigo = request.form.get('fk_plano_codigo')
         fk_turma = request.form.get('fk_turma')
 
-        # TODO: validação e sanitização dos dados inseridos
+        # valida dados
+        if not (valid.valid_cpf(cpf) and valid.valid_nome(nome) and fk_plano_codigo != '' and data_nascimento != ''):
+            session['messages'] = 'Dados inválidos'
+            return redirect('/')
 
+        try:
 
-        #try:
-
-        db.query([
-            "insert into aluno values ('%s','%s','%s',%s,'%s')" % (cpf, nome, data_nascimento, foto, fk_plano_codigo),
-            "insert into esta_matriculado values ('%s','%s')" % (fk_turma, cpf)
-        ])
-            
-            #session['messages'] = 'Aluno inserido com sucesso'
-        #except:
-        #    session['messages'] = 'Erro ao inserir aluno'
+            db.query([
+                "insert into aluno values ('%s','%s','%s',%s,'%s')" % (cpf, nome, data_nascimento, foto, fk_plano_codigo),
+                "insert into esta_matriculado values ('%s','%s')" % (fk_turma, cpf)
+            ])
+            session['messages'] = 'Aluno inserido com sucesso'
+        except:
+            session['messages'] = 'Erro ao inserir aluno'
 
         return redirect('/')
 
@@ -71,7 +73,7 @@ def edit_aluno():
         try:
             aluno = db.query([f"select cpf, nome, data_nascimento, foto, fk_plano_codigo from aluno where cpf='{cpf}'"])[0][0]
         except:
-            session['message'] = 'Usuario não encontrado'
+            session['messages'] = 'Usuario não encontrado'
             return redirect('/')
         
         
@@ -101,7 +103,7 @@ def edit_aluno():
                 aluno_turma = aluno_turma[0]
 
         except:
-            session['message'] = 'Erro ao carregar dados'
+            session['messages'] = 'Erro ao carregar dados'
             return redirect('/')
         
         return render_template('edit_aluno.html', plano=plano, turma=turma, aluno=aluno, aluno_turma=aluno_turma, image_url=image_url)
@@ -121,17 +123,28 @@ def edit_aluno():
         fk_plano_codigo = request.form.get('fk_plano_codigo')
         fk_turma = request.form.get('fk_turma')
 
+        # valida dados
+        if not (valid.valid_cpf(cpf) and valid.valid_nome(nome) and valid.valid_cod(fk_plano_codigo) and data_nascimento != ''):
+            session['messages'] = 'Dados inválidos'
+            return redirect('/')
+
         try:
             if foto == b'':
                 db.query([f"update aluno set nome='{nome}', data_nascimento='{data_nascimento}', fk_plano_codigo='{fk_plano_codigo}' where cpf='{cpf}'"])
             else:
                 db.query([f"update aluno set nome='{nome}', data_nascimento='{data_nascimento}', fk_plano_codigo='{fk_plano_codigo}', foto={Binary(foto)} where cpf='{cpf}'"])
 
-            res = db.query([f"select * from esta_matriculado where fk_aluno_cpf='{cpf}'"])[0]
-            if len(res) == 0:
-                db.query([f"insert into esta_matriculado values({fk_turma}, '{cpf}') "])
+            if fk_turma == '':
+                try:
+                    db.query([f"delete from esta_matriculado where fk_aluno_cpf='{cpf}'"])
+                except:
+                    pass
             else:
-                db.query([f"update esta_matriculado set fk_turma_codigo={fk_turma} where fk_aluno_cpf='{cpf}' "])
+                res = db.query([f"select * from esta_matriculado where fk_aluno_cpf='{cpf}'"])[0]
+                if len(res) == 0:
+                    db.query(["insert into esta_matriculado values(%s, '%s') " % (fk_turma, cpf)])
+                else:
+                    db.query([f"update esta_matriculado set fk_turma_codigo={fk_turma} where fk_aluno_cpf='{cpf}' "])
         
             session['messages'] = 'Aluno editado com sucesso'
         except:
@@ -183,6 +196,10 @@ def add_turma():
         horario_fim = request.form.get('horario_fim')
         dia_semana = request.form.get('dia_semana')
 
+        # valida dados
+        if not (valid.valid_cod(modalidade) and valid.valid_cod(profissional) and valid.valid_cod(sala) and horario_inicio != '' and horario_fim != '' and dia_semana != ''):
+            session['messages'] = 'Dados inválidos'
+            return redirect('/')
 
         try:
             db.query(["call criar_turma(%s, '%s', %s, '%s', '%s', '%s');" % (modalidade, profissional, sala, horario_inicio, horario_fim, dia_semana)])
@@ -229,6 +246,11 @@ def edit_turma():
             horario_inicio = request.form.get('horario_inicio')
             horario_fim = request.form.get('horario_fim')
             dia_semana = request.form.get('dia_semana')
+
+            # valida dados
+            if not (valid.valid_cod(modalidade) and valid.valid_cod(profissional) and valid.valid_cod(sala) and horario_inicio != '' and horario_fim != '' and dia_semana != ''):
+                session['messages'] = 'Dados inválidos'
+                return redirect('/')
 
             # updates
             db.query([
@@ -278,7 +300,12 @@ def modalidade():
             nome = request.form.get('nome')
             faixa_etaria = request.form.get('faixa_etaria')
 
-            db.query([f"insert into modalidade(nome, faixa_etaria) values('{nome}','{faixa_etaria}')"])
+            # valida dados
+            if not (valid.valid_nome(nome) and faixa_etaria != ''):
+                session['messages'] = 'Dados inválidos'
+                return redirect('/')
+
+            db.query(["insert into modalidade(nome, faixa_etaria) values('%s','%s')" % (nome, faixa_etaria)])
 
         except:
             session['messages'] = 'Erro ao inserir modalidade'
@@ -307,6 +334,12 @@ def edit_modalidade():
         codigo = request.form.get('codigo')
         nome = request.form.get('nome')
         faixa_etaria = request.form.get('faixa_etaria')
+
+        # valida dados
+        if not (valid.valid_cod(codigo) and valid.valid_nome(nome) and faixa_etaria != ''):
+            session['messages'] = 'Dados inválidos'
+            return redirect('/')
+
 
         db.query([f"UPDATE modalidade SET nome='{nome}', faixa_etaria='{faixa_etaria}' where codigo={codigo} "])
 

@@ -32,8 +32,8 @@
 
         <div class="form-group">
             <label for="">Plano</label>
-            <select class="form-control" name="fk_plano_codigo" id="" required>
-                <option value="" selected>----</option>
+            <select class="form-control" name="fk_plano_codigo" id="">
+                <option value="">----</option>
                 {% for p in plano %}
                 {% if p[0] == aluno[4] %}
                 <option value="{{ p[0] }}" selected>{{ p[1] }} - {{ p[2] }}</option>
@@ -46,7 +46,7 @@
 
         <div class="form-group">
             <label for="">Turma</label>
-            <select class="form-control" name="fk_turma" id="" required>
+            <select class="form-control" name="fk_turma" id="">
                 <option value="" selected>----</option>
                 {% for p in turma %}
                 {% if p[0] == aluno_turma[0] %}
