@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, Response
 from psycopg2 import Binary
 import io, uuid, os
 import db, valid
@@ -76,19 +76,6 @@ def edit_aluno():
             session['messages'] = 'Usuario não encontrado'
             return redirect('/')
         
-        
-        image_url=''
-        if aluno[3] != None and aluno[3] != '':
-            # gera um nome temporario aleatorio para a imagem
-            image_url = f'static/images/{uuid.uuid4()}.jpeg'
-
-            # salva a imagem temporariamente em /static/images
-            f = io.BytesIO(aluno[3])
-            data = f.read()
-            d = open(ABS_PATH+image_url, 'wb')
-            d.write(data)
-            d.close()
-        
         aluno_turma = ''
         turma = ''
         try:
@@ -106,14 +93,9 @@ def edit_aluno():
             session['messages'] = 'Erro ao carregar dados'
             return redirect('/')
         
-        return render_template('edit_aluno.html', plano=plano, turma=turma, aluno=aluno, aluno_turma=aluno_turma, image_url=image_url)
+        return render_template('edit_aluno.html', plano=plano, turma=turma, aluno=aluno, aluno_turma=aluno_turma)
 
     elif request.method == 'POST':
-
-        # remove a imagem temporaria
-        image_url = request.form.get('image_url')
-        if image_url:
-            os.remove(ABS_PATH+image_url)
 
         # dados do formulario
         cpf = request.form.get('cpf')
@@ -368,6 +350,15 @@ def del_modalidade():
     
         session['messages'] = 'Modalidade removida com sucesso'
         return redirect('/')
+
+@app.route('/get_image')
+def get_image():
+    cpf = request.args.get('cpf')
+
+    image = db.query([f"select foto from aluno where cpf='{cpf}'"])[0][0][0]
+
+    return Response(image, content_type='image/jpeg')
+
 
 @app.route('/clear_session')
 def clear_session():
