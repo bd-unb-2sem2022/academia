@@ -5,7 +5,9 @@
 <div class="card-body">
     <h4>Editar aluno</h4>
 
-    <img src="get_image?cpf={{ aluno[0] }}" alt="profile photo">
+    <div class="text-center">
+        <img class="rounded" src="get_image?cpf={{ aluno[0] }}" alt="profile photo" width="201" height="251">
+    </div>
 
     <form action="/edit_aluno" method="post" enctype="multipart/form-data" class="form">
         
